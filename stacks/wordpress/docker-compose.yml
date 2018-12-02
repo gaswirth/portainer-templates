@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 
 services:
    db:
@@ -7,7 +7,7 @@ services:
        - db_data:/var/lib/mysql
      restart: always
      environment:
-       MYSQL_ROOT_PASSWORD: ${MYSQL_DATABASE_PASSWORD}
+       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
        MYSQL_DATABASE: wordpress
        MYSQL_USER: wordpress
        MYSQL_PASSWORD: wordpress
@@ -17,11 +17,17 @@ services:
      ports:
        - 80
      restart: always
+     depends_on:
+       db:
+         condition: service_started
+     volumes:
+       - "./docker-wp-entrypoint.sh:/usr/local/bin/apache2-entrypoint.sh"
      environment:
        WORDPRESS_DB_HOST: db:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_PASSWORD: wordpress
-     command: sh /srv/scripts/portainer-wp-post-run.sh
+     command:
+       - apache2-entrypoint.sh
 
 volumes:
     db_data:
